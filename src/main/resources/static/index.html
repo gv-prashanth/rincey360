@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>3D Rotation Viewer using UIZE Framework</title>
+	<style type="text/css">
+		.rotationViewer {
+			position:relative;
+			width:640px;
+			height:480px;
+			border-style:solid;
+			border-width:1px;
+			margin:auto;
+			margin-bottom:10px;
+			cursor:pointer;
+		}
+		.rotationViewer img {
+			position:absolute;
+			display:none;
+			left:0;
+			top:0;
+			width:100%;
+			height:100%;
+		}
+	</style>
+</head>
+
+<body>
+
+<script type="text/javascript" src="../js/Uize.js"></script>
+
+<h1 class="document-title">
+	3D Rotation Viewer
+</h1>
+
+<div class="main">
+	<!-- explanation copy -->
+
+	<div class="explanation">
+		<p>
+		This is an example of a 3d wow model using uize framework.
+		</p>
+	</div>
+
+	<!-- HTML "wireframe" for 3D rotation viewer -->
+
+	<div id="page_rotationViewer" class="rotationViewer insetBorderColor"></div>
+
+	<div style="text-align:center;">
+		<a href="javascript://" class="linkedJs buttonLink" title="spin (360,2700,Uize.Curve.easeInOutPow (4))">360 clockwise</a><a href="javascript://" class="linkedJs buttonLink" title="spin (-360,2700,Uize.Curve.easeInOutPow (4))">360 counter-clockwise</a>
+	</div>
+</div>
+
+<!-- JavaScript code to make the static bar HTML "come alive" -->
+
+<script type="text/javascript">
+
+Uize.module ({
+	required:[
+		'UizeDotCom.Page.Example.library',
+		'UizeDotCom.Page.Example',
+		'Uize.Widget.Drag',
+		'Uize.Fade.xFactory',
+		'Uize.Curve.Rubber',
+		'Uize.Curve.Mod'
+	],
+	builder:function () {
+		/*** create the example page widget ***/
+			var page = window.page = new UizeDotCom.Page.Example ({evaluator:function (code) {eval (code)}});
+
+		/*** configuration variables ***/
+			var
+				totalFrames = 56,
+				frameUrlTemplate =
+					'[#frame].jpg'
+			;
+
+		/*** state variables ***/
+			var
+				rotation = 0,
+				lastFrameNo = -1,
+				dragStartRotation
+			;
+
+		/*** create the Uize.Widget.Drag instance ***/
+			var rotationViewer = page.addChild (
+				'rotationViewer',
+				Uize.Widget.Drag,
+				{
+					cancelFade:{duration:1000,curve:Uize.Curve.Rubber.easeOutBounce ()},
+					releaseTravel:function (speed) {
+						var
+							deceleration = 5000, // measured in pixels/s/s
+							duration = speed / deceleration
+						;
+						return {
+							duration:duration,
+							distance:Math.round (speed * duration / 2),
+							curve:function (_value) {return 1 - (_value = 1 - _value) * _value}
+						};
+					}
+				}
+			);
+
+		/*** insert all the frames for the 360 degree rotation ***/
+			var htmlChunks = [];
+			for (var frameNo = 0; ++frameNo <= totalFrames;) {
+				htmlChunks.push (
+					'<img' +
+						' id="page_rotationViewer-frame' + frameNo + '"' +
+						' src="' + Uize.substituteInto (frameUrlTemplate,{frame:(frameNo < 10 ? '0' : '') + frameNo}) +'"' +
+					'/>'
+				);
+			}
+			rotationViewer.injectNodeHtml ('',htmlChunks.join (''));
+
+		/*** wire up the drag widget with events for updating rotation degree ***/
+			function updateRotation (newRotation) {
+				rotation = ((newRotation % 360) + 360) % 360;
+				var frameNo = 1 + Math.round (rotation / 360 * (totalFrames - 1));
+				if (frameNo != lastFrameNo) {
+					rotationViewer.displayNode ('frame'+ lastFrameNo,false);
+					rotationViewer.displayNode ('frame'+ (lastFrameNo = frameNo));
+				}
+			}
+			rotationViewer.wire ({
+				'Drag Start':function () {dragStartRotation = rotation},
+				'Drag Update':function (e) {updateRotation (dragStartRotation - e.source.eventDeltaPos [0] / 2.5)}
+			});
+
+		/*** wire up the page widget ***/
+			page.wireUi ();
+
+		/*** function for animating spin ***/
+			function spin (degrees,duration,curve) {
+				Uize.Fade.fade (updateRotation,rotation,rotation + degrees,duration,{quantization:1,curve:curve});
+			}
+
+		/*** initialization ***/
+			Uize.Node.wire (window,'load',function () {spin (360,2700,Uize.Curve.easeInOutPow (4))});
+	}
+});
+
+</script>
+
+</body>
+</html>
+
