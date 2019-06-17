@@ -1,2 +1,2 @@
 # rincey360
-A 360 degree view implemented using javascript library of my fav wow character Rincey. This is the first Rincey he has created. You can play around at <a href="https://rincey360.herokuapp.com/"> Rincey 360 </a>
+A 360 degree view of my fav wow character Rincey. Created when she was just in Level 1. You can play around at <a href="https://rincey360.herokuapp.com/"> Rincey 360 </a>
