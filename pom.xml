@@ -12,7 +12,7 @@
 	<artifactId>rincey360</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>rincey360</name>
-	<description>A 360 degree view implemented using javascript library of my fav wow character Rincey. This is the first Rincey he has created.</description>
+	<description>A 360 degree view of my fav wow character Rincey. Created when she was just in Level 1.</description>
 
 	<properties>
 		<java.version>1.8</java.version>
